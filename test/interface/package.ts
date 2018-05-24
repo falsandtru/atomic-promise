@@ -4,6 +4,7 @@ describe('Interface: Package', function () {
   describe('AtomicPromise', function () {
     it('AtomicPromise', function () {
       assert(typeof AtomicPromise === 'function');
+      assert(typeof window.AtomicPromise === 'function');
     });
 
   });
