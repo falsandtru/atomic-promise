@@ -25,13 +25,16 @@
     "*.md",
     "LICENSE"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "spica": "0.0.182"
+  },
   "devDependencies": {
     "@types/mocha": "^5.2.0",
     "@types/power-assert": "^1.5.0",
     "browserify": "^16.2.2",
     "del": "^3.0.0",
     "gulp": "^3.9.1",
+    "gulp-footer": "^2.0.1",
     "gulp-header": "^2.0.5",
     "gulp-load-plugins": "^1.5.0",
     "gulp-mocha": "^6.0.0",
@@ -52,7 +55,6 @@
     "npm-check-updates": "^2.14.2",
     "power-assert": "^1.5.0",
     "run-sequence": "^2.2.1",
-    "spica": "0.0.182",
     "tsify": "^4.0.0",
     "typescript": "3.0.0-dev.20180522",
     "uglify-es": "^3.3.9",
