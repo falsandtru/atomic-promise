@@ -1,6 +1,6 @@
 {
   "name": "atomic-promise",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Promise with no delay.",
   "private": true,
   "homepage": "https://github.com/falsandtru/atomic-promise",
