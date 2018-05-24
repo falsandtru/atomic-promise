@@ -1,0 +1,38 @@
+language: node_js
+matrix:
+  include:
+  - os: linux
+    dist: trusty
+    sudo: required
+    node_js: 10
+  - os: osx
+    node_js: 10
+addons:
+  chrome: stable
+  firefox: latest
+before_install:
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CHROME_BIN=google-chrome-stable; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export DISPLAY=:99.0; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sh -e /etc/init.d/xvfb start; fi
+script:
+- npm run ci
+before_deploy:
+- sed -i 's/"private":\ true/"private":\ false/' package.json
+- sed -i -E 's/^dist\/?.*$//' .gitignore
+deploy:
+  provider: npm
+  email:
+    secure: TQ/8RCe2sI7bwkR2pPQDADIazItkNWK56PyE9jPZjbDs3OIuFCEzycFoRPjfk+6vjWDExUKw5E2x0+/xf0m5aUhe7xjW6pu8DvIMVbeGGWFJgxAWMQ/IZngSITLFnvAu4A+B6K4Xzx5QDsPAve1NXrprrfOcxxylLRheCihH+7TCTMknucBE+dZaE2QjRjtZYGY94nrZzWrgdz9+u45dwzWoVeRwz+RVnaH6/YnFnogKuOSIBEnGxoVx9Pg5m+91wrDtv60PCDAvIGzngGZwsQuWS3DIY/LBgJFj1/m/qtT1Q7WHfkxV2boY8U60GHb741Q3pW8tyHY2VTuLOyuSyKEsAYzA52RP4SYZTgsYZlqkY+VkBqYEIDmpQnYG6uyWOxMpuf+sS5nLmy55Y6TJty5H9PxuzA8W980CtPdR7ZGkqfkF1oFpzILwpE4/EZWcL9YeMa6NBIZX05kfFGAV0euRWhnPKwOgJOs18GpAxo3FkHyhKkyNoQyvTlUOIQ6aiBJ2PoMsJZjmAsktMGiYKrcORR1skChTkZWCyVOe15TKiQknLZx44zUT7CB02W0FHgxfN0qTKV3nqG0/uDpQ/8cOHmshH0WI4jBFi73D7HSgavPpRYUsZ21lnxCyQYPJABbtU/APAUzrQrHV6P3XlCtvF9xRK1Kkj5pTuqcK1vM=
+  api_key:
+    secure: 3INP1hYgNCVYtLsDLEHvq1Q8gyYEK87cA9JPPmVyI3jAOLhZ+k0riI0rh7d6cRtaJuGvBbEWKliTf7t3vmw7yINtG/WWS87agVzgf0cWcGIjO0t7UwB4mfbwS1+2QtPd0Jfj9SiAWLHcy98h6CcG35UWjMF3NuTf5uWSdrlxQC2zXul0Qy3H8VAyWXBxO4kTwof8T1QpB3QaE3chgbYWPb5B+pqsbzl3Z7JjmTUriaM38fpAIkXBK+U4mcCFa5uEl/7uXN86Lte3obaqi93G9mesb+wI47oKdNm01vbXJPYjzyE7uHlIskBQtRe/GwIjQU8yuca9DbCyhxV5XDr7FqwiXfJnJX56DXFc/oxyS9W5v7nWURr4cm2L3VZGpCz/3e1koTZCwRYHpnTba1TzSB+TPrPPBoDZ+lNiO8ozckwDe1VGGn4DXcMSXzULqeWHAkzWxtBLPctBIwJohXiSTNpI8aabY1UZdFGPqzT2HpaZVSGeAnxuT47qO4Gx23+Nlm0VEq1au8WhcnHKqh09ioWrHtx5VrteOQK6pwbztmv7xfK5XYflGC92PEda4bymCBR8zOkgJaolSlVOUnQytV548hgFXDxObCUjlwua/6OHxyYCFbp2mu6nW9LS4vl3d6QgdP45foK8slS/B/OLh5pRO436J8pa6r2nc0WIuUA=
+  on:
+    branch: master
+    node: 10
+    condition: $TRAVIS_OS_NAME = linux
+  skip_cleanup: true
+notifications:
+  email:
+    recipients:
+    - secure: TQ/8RCe2sI7bwkR2pPQDADIazItkNWK56PyE9jPZjbDs3OIuFCEzycFoRPjfk+6vjWDExUKw5E2x0+/xf0m5aUhe7xjW6pu8DvIMVbeGGWFJgxAWMQ/IZngSITLFnvAu4A+B6K4Xzx5QDsPAve1NXrprrfOcxxylLRheCihH+7TCTMknucBE+dZaE2QjRjtZYGY94nrZzWrgdz9+u45dwzWoVeRwz+RVnaH6/YnFnogKuOSIBEnGxoVx9Pg5m+91wrDtv60PCDAvIGzngGZwsQuWS3DIY/LBgJFj1/m/qtT1Q7WHfkxV2boY8U60GHb741Q3pW8tyHY2VTuLOyuSyKEsAYzA52RP4SYZTgsYZlqkY+VkBqYEIDmpQnYG6uyWOxMpuf+sS5nLmy55Y6TJty5H9PxuzA8W980CtPdR7ZGkqfkF1oFpzILwpE4/EZWcL9YeMa6NBIZX05kfFGAV0euRWhnPKwOgJOs18GpAxo3FkHyhKkyNoQyvTlUOIQ6aiBJ2PoMsJZjmAsktMGiYKrcORR1skChTkZWCyVOe15TKiQknLZx44zUT7CB02W0FHgxfN0qTKV3nqG0/uDpQ/8cOHmshH0WI4jBFi73D7HSgavPpRYUsZ21lnxCyQYPJABbtU/APAUzrQrHV6P3XlCtvF9xRK1Kkj5pTuqcK1vM=
+    on_success: change
+    on_failure: always

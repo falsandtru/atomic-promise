@@ -1,0 +1,70 @@
+{
+  "name": "atomic-promise",
+  "version": "0.0.0",
+  "description": "Promise with no delay.",
+  "private": true,
+  "homepage": "https://github.com/falsandtru/atomic-promise",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/falsandtru/atomic-promise"
+  },
+  "keywords": [
+    "promise",
+    "atomic",
+    "synchronous"
+  ],
+  "main": "./dist/atomic-promise.js",
+  "files": [
+    "dist",
+    "index.*",
+    "src",
+    "test",
+    "*.ts",
+    "*.js",
+    "*.json",
+    "*.md",
+    "LICENSE"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "@types/mocha": "^5.2.0",
+    "@types/power-assert": "^1.5.0",
+    "browserify": "^16.2.2",
+    "del": "^3.0.0",
+    "gulp": "^3.9.1",
+    "gulp-header": "^2.0.5",
+    "gulp-load-plugins": "^1.5.0",
+    "gulp-mocha": "^6.0.0",
+    "gulp-rename": "^1.2.3",
+    "gulp-uglify": "^3.0.0",
+    "gulp-unassert": "^1.0.1",
+    "isparta": "^4.0.0",
+    "karma": "^2.0.2",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-coverage": "^1.1.2",
+    "karma-coveralls": "^1.2.1",
+    "karma-edge-launcher": "^0.4.2",
+    "karma-espower-preprocessor": "^1.2.0",
+    "karma-firefox-launcher": "^1.1.0",
+    "karma-ie-launcher": "^1.0.0",
+    "karma-mocha": "^1.3.0",
+    "mocha": "^5.2.0",
+    "npm-check-updates": "^2.14.2",
+    "power-assert": "^1.5.0",
+    "run-sequence": "^2.2.1",
+    "spica": "0.0.182",
+    "tsify": "^4.0.0",
+    "typescript": "3.0.0-dev.20180522",
+    "uglify-es": "^3.3.9",
+    "vinyl-buffer": "^1.0.1",
+    "vinyl-source-stream": "^2.0.0",
+    "watchify": "^3.11.0",
+    "whatwg-fetch": "^2.0.4"
+  },
+  "scripts": {
+    "test": "gulp test",
+    "ci": "gulp ci"
+  },
+  "author": "falsandtru",
+  "license": "(Apache-2.0 AND MPL-2.0)"
+}
