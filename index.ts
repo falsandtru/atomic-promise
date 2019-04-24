@@ -1,1 +1,1 @@
-﻿export * from 'spica/promise';
+export * from 'spica/promise';
