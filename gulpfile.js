@@ -1,13 +1,12 @@
 const gulp = require('gulp');
+const { series, parallel } = gulp;
 const glob = require('glob');
 const shell = cmd => require('child_process').execSync(cmd, { stdio: [0, 1, 2] });
 const del = require('del');
 const source = require('vinyl-source-stream');
 const buffer = require('vinyl-buffer');
 const $ = require('gulp-load-plugins')();
-const seq = require('run-sequence');
 const browserify = require('browserify');
-const watchify = require('watchify');
 const tsify = require('tsify');
 const minify = require('gulp-uglify/composer')(require('uglify-es'), console);
 const Server = require('karma').Server;
@@ -57,70 +56,73 @@ const config = {
   return require('${pkg.name}');
 }));
 `,
-  clean: {
-    dist: 'dist'
-  }
+  clean: [
+    'dist',
+  ]
 };
 
-function compile({ src, dest }, opts = {}) {
+function compile(src, watch = false) {
   let done = true;
-  const force = !!opts.plugin && opts.plugin.includes(watchify);
   const b = browserify(Object.values(src).map(p => glob.sync(p)), {
     cache: {},
     packageCache: {},
-    ...opts,
   })
     .require(`./index.ts`, { expose: pkg.name })
-    .plugin(tsify, { global: true, ...require('./tsconfig.json').compilerOptions })
-    .on('update', () => void bundle());
+    .plugin(tsify, { global: true, ...require('./tsconfig.json').compilerOptions });
   return bundle();
 
   function bundle() {
     console.time('bundle');
     return b
       .bundle()
-      .on("error", err => done = console.log(err + ''))
+      .on("error", err => done = console.log(err + '') || watch)
       .pipe(source(`${pkg.name}.js`))
       .pipe(buffer())
+      .pipe($.derequire())
       .once('finish', () => console.timeEnd('bundle'))
-      .once("finish", () => done || force || process.exit(1))
-      .pipe($.footer(config.module))
-      .pipe(gulp.dest(dest));
+      .once("finish", () => done || process.exit(1))
+      .pipe($.footer(config.module));
   }
 }
 
-gulp.task('ts:watch', function () {
-  return compile(config.ts.test, {
-    plugin: [watchify],
-  });
-});
+gulp.task('ts:dev', () =>
+  gulp.watch(config.ts.test.src, { ignoreInitial: false }, () =>
+    compile(config.ts.test.src, true)
+      .pipe($.rename({ extname: '.test.js' }))
+      .pipe(gulp.dest(config.ts.test.dest))));
 
-gulp.task('ts:test', function () {
-  return compile(config.ts.test);
-});
+gulp.task('ts:test', () =>
+  compile(config.ts.test.src)
+    .pipe($.rename({ extname: '.test.js' }))
+    .pipe(gulp.dest(config.ts.test.dest)));
 
-gulp.task('ts:dist', function () {
-  return compile(config.ts.dist)
+gulp.task('ts:dist', () =>
+  compile(config.ts.dist.src)
     .pipe($.unassert())
     .pipe($.header(config.banner))
     .pipe(gulp.dest(config.ts.dist.dest))
     .pipe($.rename({ extname: '.min.js' }))
     .pipe(minify({ output: { comments: /^!/ } }))
-    .pipe(gulp.dest(config.ts.dist.dest));
-});
+    .pipe(gulp.dest(config.ts.dist.dest)));
 
-gulp.task('karma:watch', function (done) {
-  new Server({
+gulp.task('ts:view', () =>
+  gulp.watch(config.ts.dist.src, { ignoreInitial: false }, () =>
+    compile(config.ts.dist.src)
+      .pipe($.unassert())
+      .pipe($.header(config.banner))
+      .pipe(gulp.dest('./gh-pages/assets/js/lib'))));
+
+gulp.task('karma:dev', done =>
+  void new Server({
     configFile: __dirname + '/karma.conf.js',
     browsers: config.browsers,
     preprocessors: {
       'dist/*.js': ['espower']
     },
-  }, done).start();
-});
+  }, done).start());
 
-gulp.task('karma:test', function (done) {
-  new Server({
+gulp.task('karma:test', done =>
+  void new Server({
     configFile: __dirname + '/karma.conf.js',
     browsers: config.browsers,
     preprocessors: {
@@ -129,11 +131,10 @@ gulp.task('karma:test', function (done) {
     reporters: ['dots', 'coverage'],
     concurrency: 1,
     singleRun: true
-  }, done).start();
-});
+  }, done).start());
 
-gulp.task('karma:ci', function (done) {
-  new Server({
+gulp.task('karma:ci', done =>
+  void new Server({
     configFile: __dirname + '/karma.conf.js',
     browsers: config.browsers,
     preprocessors: {
@@ -142,57 +143,54 @@ gulp.task('karma:ci', function (done) {
     reporters: ['dots', 'coverage', 'coveralls'],
     concurrency: 1,
     singleRun: true
-  }, done).start();
-});
+  }, done).start());
 
-gulp.task('clean', function () {
-  return del([config.clean.dist]);
-});
+gulp.task('clean', () =>
+  del(config.clean));
 
-gulp.task('install', function () {
+gulp.task('install', done => {
   shell('npm i --no-shrinkwrap');
+  done();
 });
 
-gulp.task('update', function () {
-  shell('ncu -ua');
+gulp.task('update', done => {
+  shell('ncu -u');
   shell('npm i -DE typescript@next --no-shrinkwrap');
   shell('npm i --no-shrinkwrap');
+  done();
 });
 
-gulp.task('watch', ['clean'], function (done) {
-  seq(
-    'ts:test',
-    [
-      'ts:watch',
-      'karma:watch'
-    ],
-    done
-  );
-});
+gulp.task('dev',
+  series(
+    'clean',
+    parallel(
+      'ts:dev',
+      'karma:dev',
+    )));
 
-gulp.task('test', ['clean'], function (done) {
-  seq(
-    'ts:test',
-    'karma:test',
-    'ts:dist',
-    done
-  );
-});
+gulp.task('test',
+  series(
+    'clean',
+    series(
+      'ts:test',
+      'karma:test',
+      'ts:dist',
+    )));
 
-gulp.task('dist', ['clean'], function (done) {
-  seq(
-    'ts:dist',
-    done
-  );
-});
+gulp.task('dist',
+  series(
+    'clean',
+    series(
+      'ts:dist',
+    )));
 
-gulp.task('ci', ['clean'], function (done) {
-  seq(
-    'ts:test',
-    'karma:ci',
-    'karma:ci',
-    'karma:ci',
-    'dist',
-    done
-  );
-});
+gulp.task('ci',
+  series(
+    'clean',
+    series(
+      'ts:test',
+      'karma:ci',
+      'karma:ci',
+      'karma:ci',
+      'dist',
+    )));
