@@ -4,7 +4,7 @@ module.exports = function (config) {
     frameworks: ['mocha'],
     files: [
       { pattern: 'node_modules/power-assert/build/power-assert.js', watched: true, served: true, included: true },
-      { pattern: 'dist/*.js', watched: true, served: true, included: true }
+      { pattern: 'dist/*.test.js', watched: true, served: true, included: true }
     ],
     exclude: [
     ],
@@ -15,25 +15,27 @@ module.exports = function (config) {
       }
     },
     reporters: ['dots'],
-    coverageReporter: {
+    coverageIstanbulReporter: {
+      reports: ['html', 'lcovonly', 'text-summary'],
       dir: 'coverage',
-      subdir: function (browser, platform) {
-        return browser.toLowerCase().split(' ')[0];
+      combineBrowserReports: true,
+      skipFilesWithNoCoverage: false,
+      verbose: false,
+      'report-config': {
+        html: {
+          subdir: 'html',
+        },
       },
-      includeAllSources: true,
-      instrumenters: {
-        isparta: require('isparta')
+      instrumentation: {
+        'default-excludes': false,
       },
-      instrumenter: {
-        '**/*.js': 'isparta'
-      },
-      reporters: [
-        { type: 'lcov' },
-        { type: 'text-summary', subdir: '.', file: 'summary.txt' },
-      ]
+    },
+    coverageIstanbulInstrumenter: {
+      esModules: true,
     },
     autoWatch: true,
     autoWatchBatchDelay: 500,
     browsers: ['Chrome'],
+    singleRun: true,
   });
 };
