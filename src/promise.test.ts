@@ -1,0 +1,1 @@
+import 'spica/promise.test';
