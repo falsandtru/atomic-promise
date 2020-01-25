@@ -26,7 +26,6 @@ deploy:
     branch: master
     node: 12
     condition: $TRAVIS_OS_NAME = linux
-  skip_cleanup: true
 notifications:
   email:
     recipients:
