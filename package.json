@@ -26,9 +26,6 @@
     "NOTICE",
     "LICENSE"
   ],
-  "dependencies": {
-    "spica": "0.0.207"
-  },
   "devDependencies": {
     "@types/mocha": "^8.2.1",
     "@types/power-assert": "1.5.3",
